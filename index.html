@@ -10,14 +10,28 @@
     <input 
       type="text" 
       v-model="newTodo">
+    <input type="radio" value="home" v-model="newType">
+    <span>Home</span>
+    <input type="radio" value="work" v-model="newType">
+    <span>Work</span>
     <button 
       type="button"
-      v-on:click="addTodo">
+      v-on:click="addTodo"
+      v-bind:disabled="this.newTodo.length == 0">
       Add todo
     </button>
+    <p>
+      <span>View:</span>
+      <input type="radio" value="all" v-model="filter">
+      <span>All</span>
+      <input type="radio" value="home" v-model="filter">
+      <span>Home</span>
+      <input type="radio" value="work" v-model="filter">
+      <span>Work</span>
+    </p>
     <ul>
-      <li v-for="(todo,index) in todos">
-        <span v-text="todo"></span>
+      <li v-for="(todo,index) in filteredTodos">
+        <span v-text="todo.text"></span>
         <button type="button" v-on:click="removeTodo(index)">X</button>
       </li>
     </ul>
@@ -28,17 +42,46 @@
       el: '#app',
       data: {
         newTodo: '',
+        newType: 'home',
+        filter: 'all',
         todos: []
+      },
+      // created is a lifecycle hook
+      created: function()
+      {
+        var storedTodos = JSON.parse(localStorage.getItem('todos'));
+        if (storedTodos != null) {
+          this.todos = storedTodos;
+        }
+      },
+      computed:
+      {
+        filteredTodos: function()
+        {
+          return this.todos.filter(todo =>
+          {
+            return this.filter == 'all' ? true : todo.type == this.filter;
+          });
+        }
       },
       methods: {
         addTodo: function()
         {
-          this.todos.push(this.newTodo);
+          this.todos.push({
+            text: this.newTodo,
+            type: this.newType
+          });
           this.newTodo = '';
+          this.storeTodos();
         },
         removeTodo: function(index)
         {
           this.todos.splice(index, 1);
+          this.storeTodos();
+        },
+        storeTodos: function()
+        {
+          localStorage.setItem('todos', JSON.stringify(this.todos));
         }
       }
     });
