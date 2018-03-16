@@ -58,15 +58,10 @@
       {
         filteredTodos: function()
         {
-          if (this.filter == 'all') {
-            return this.todos;
-          }
-          if (this.filter == 'home') {
-            return this.todos.filter(todo => todo.type == 'home');
-          }
-          if (this.filter == 'work') {
-            return this.todos.filter(todo => todo.type == 'work');
-          }
+          return this.todos.filter(todo =>
+          {
+            return this.filter == 'all' ? true : todo.type == this.filter;
+          });
         }
       },
       methods: {
